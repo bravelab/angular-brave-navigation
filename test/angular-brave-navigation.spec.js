@@ -3,13 +3,13 @@
 
   /**
    * @ngdoc overview
-   * @name ngBraveToastr
-   * @description ngBraveToastr tests
+   * @name ngBraveNavigation
+   * @description ngBraveNavigation tests
    *
    */
-  describe('ngBraveToastr module', function () {
+  describe('ngBraveNavigation module', function () {
 
-    beforeEach(module('ngBraveToastr'));
+    beforeEach(module('ngBraveNavigation'));
 
     describe('value - version', function () {
       it('should return current version', inject(function (version) {
