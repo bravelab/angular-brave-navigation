@@ -13,7 +13,8 @@
   "homepage": "https://www.sizeof.pl/en/",
   "private": true,
   "dependencies": {
-    "jquery": "latest"
+    "jquery": "latest",
+    "lodash": "latest"
   },
   "ignore": [
     "**/.*",

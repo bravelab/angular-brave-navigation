@@ -8,6 +8,6 @@
    */
   angular
     .module('ngBraveNavigation', [])
-    .value('version', '0.0.1');
+    .value('version', '0.0.2');
 
 })();
