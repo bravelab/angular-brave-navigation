@@ -8,7 +8,7 @@
    */
   angular
     .module('ngBraveNavigation', [])
-    .value('version', '0.0.2');
+    .value('version', '0.0.3');
 
 })();
 
