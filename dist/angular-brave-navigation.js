@@ -8,7 +8,7 @@
    */
   angular
     .module('ngBraveNavigation', [])
-    .value('version', '0.0.2');
+    .value('version', '0.0.3');
 
 })();
 
@@ -99,18 +99,179 @@
 
   angular
     .module('ngBraveNavigation')
-    .directive('braveNavigationFront', ['$rootScope', '$compile', function ($rootScope, $compile) {
+    .directive('braveNavigationCategories', ['$rootScope', '$compile', 'BraveNavigationCategories', function ($rootScope, $compile, braveNavigationCategories) {
 
       return {
         restrict: 'E',
+        templateUrl: '',
         scope: {
           items: '@items'
         },
         compile: function (element, attrs) {
 
-          // rendering 
+          // rendering
+          console.log('Attributes', attrs.items);
 
-          console.log(attrs);
+          braveNavigationCategories.get().then(function (data) {
+
+            function _createItem(item, parent, level) {
+              var li = $('<li />'); // {'ui-sref-active': 'active'}
+              var a = $('<a />');
+              var i = $('<i />');
+
+              console.log('braveNavigationFront', item);
+
+              li.append(a);
+
+              if (item.sref) {
+
+                var srefValue;
+                srefValue = item.sref;
+
+                if (item.data) {
+
+                  srefValue += '(' + JSON.stringify(item.data) + ')';
+                }
+                a.attr('ui-sref', srefValue);
+              }
+
+              if (item.href) {
+                a.attr('href', item.href);
+              }
+
+              if (item.title) {
+                a.attr('title', item.title);
+                if (level === 1) {
+                  a.append('<span class="menu-item-parent">' + item.title + '</span>');
+                } else {
+                  a.append(' ' + item.title);
+
+                }
+              }
+
+              if (item.items) {
+                var ul = $('<ul />');
+                li.append(ul);
+                li.attr('data-menu-collapse', '');
+                _.forEach(item.items, function (child) {
+                  _createItem(child, ul, level + 1);
+                });
+              }
+              parent.append(li);
+            }
+
+
+            // Generate menu
+            var ul = $('<ul />', {
+              'data-menu': "test"
+            })
+              .addClass('categories-list')
+              .addClass('collapsed')
+            ;
+
+            _.forEach(data.items, function (item) {
+
+              if (typeof item !== 'undefined') {
+                _createItem(item, ul, 1);
+              }
+            });
+
+            var $scope = $rootScope.$new();
+            var html = $('<div>').append(ul).html();
+            var linkingFunction = $compile(html);
+
+            var _element = linkingFunction($scope);
+
+            element.replaceWith(_element);
+          });
+        }
+      };
+    }]);
+
+}());
+
+(function () {
+  'use strict';
+
+  angular
+    .module('ngBraveNavigation')
+    .directive('braveNavigationFront', ['$rootScope', '$compile', 'BraveNavigationService', function ($rootScope, $compile, braveNavigationService) {
+
+      return {
+        restrict: 'E',
+        scope: {
+          symbol: '@symbol'
+        },
+        compile: function (element, attrs) {
+
+          braveNavigationService.get(attrs.symbol).then(function (data) {
+
+            // Helper function
+            function _createItem(item, parent, level) {
+              var li = $('<li />', {'ui-sref-active': 'active'});
+              var a = $('<a />');
+              var i = $('<i />');
+
+              li.append(a);
+
+              if (item.sref) {
+
+                var srefValue;
+                srefValue = item.sref;
+
+                if (item.data) {
+
+                  srefValue += '(' + JSON.stringify(item.data) + ')';
+                }
+                a.attr('ui-sref', srefValue);
+              }
+
+
+              if (item.href) {
+                a.attr('href', item.href);
+              }
+              if (item.icon) {
+                i.attr('class', 'fa fa-lg fa-fw fa-' + item.icon);
+                a.append(i);
+              }
+              if (item.title) {
+                a.attr('title', item.title);
+                if (level === 1) {
+                  a.append('<span class="menu-item-parent">' + item.title + '</span>');
+                } else {
+                  a.append(' ' + item.title);
+
+                }
+              }
+
+              if (item.items) {
+                var ul = $('<ul />');
+                li.append(ul);
+                li.attr('data-menu-collapse', '');
+                _.forEach(item.items, function (child) {
+                  _createItem(child, ul, level + 1);
+                });
+              }
+              parent.append(li);
+            }
+
+            // Generate menu
+            var ul = $('<ul />', {
+              'smart-menu': ''
+            });
+            _.forEach(data.items, function (item) {
+              _createItem(item, ul, 1);
+            });
+
+            var $scope = $rootScope.$new();
+            var html = $('<div>').append(ul).html();
+            var linkingFunction = $compile(html);
+
+            var _element = linkingFunction($scope);
+
+            element.replaceWith(_element);
+
+          });
         }
       };
     }]);
@@ -433,12 +594,12 @@
       this.sref = data.sref;
       this.icon = data.icon;
       this.href = data.href;
+      this.data = data.data;
 
       // TODO: recurse tree
       if (typeof data.items !== 'string') {
         this.items = data.items;
       }
-
     };
 
     return factory;
@@ -449,60 +610,26 @@
 (function () {
   'use strict';
 
-  /**
-   * @ngdoc overview
-   * @name app [ngBraveNavigation]
-   * @description Config provider for ngBraveNavigation
-   */
   angular
     .module('ngBraveNavigation')
-    .provider('BraveNavigation', function () {
+    .factory('BraveNavigationCategories', BraveNavigationCategories);
 
-      this.apiUrl = '/api';
-
-      this.$get = function () {
-        var apiUrl = this.apiUrl;
-
-        return {
-          getApiUrl: function () {
-            return apiUrl;
-          }
-        };
-      };
-
-      this.setApiUrl = function (apiUrl) {
-        this.apiUrl = apiUrl;
-      };
-
-    });
-
-})();
-
-
-
-(function () {
-  'use strict';
-
-  angular
-    .module('ngBraveNavigation')
-    .factory('BraveNavigationServiceCategories', BraveNavigationServiceCategories);
-
-  BraveNavigationServiceCategories.$inject = ['$http', '$q', 'BraveNavigation', 'NavigationTransformer'];
+  BraveNavigationCategories.$inject = ['$http', '$q', 'BraveNavigationConfig', 'CategoriesTransformer'];
 
   /**
    *
    * @param {object} $http - Http object
    * @param {object} $q - Query object
-   * @param {object} braveNavigation - app config object provider
-   * @param {object} navigationTransformer - doc list transformer object
+   * @param {object} braveNavigationConfig - app config object provider
+   * @param {object} categoriesTransformer - doc list transformer object
    * @returns {{get: ngBraveNavigation.get}} - Service Factory
    * @constructor
    */
-  function BraveNavigationServiceCategories($http, $q, braveNavigation, navigationTransformer) {
+  function BraveNavigationCategories($http, $q, braveNavigationConfig, categoriesTransformer) {
 
     var cache = {};
 
-    var apiUrl = braveNavigation.getApiUrl();
+    var apiUrl = braveNavigationConfig.getApiUrl();
 
     /**
      * @name Docs
@@ -531,8 +658,8 @@
       } else {
         $http({
           method: 'GET',
-          url: apiUrl + '/products/categories/',
-          transformResponse: navigationTransformer
+          url: apiUrl + '/products/categories',
+          transformResponse: categoriesTransformer
         })
           .then(function (data) {
             cache[id] = data.data;
@@ -547,6 +674,40 @@
 
   }
 })();
+
+(function () {
+  'use strict';
+
+  /**
+   * @ngdoc overview
+   * @name app [ngBraveNavigation]
+   * @description Config provider for ngBraveNavigation
+   */
+  angular
+    .module('ngBraveNavigation')
+    .provider('BraveNavigationConfig', function () {
+
+      this.apiUrl = '/api';
+
+      this.$get = function () {
+        var apiUrl = this.apiUrl;
+
+        return {
+          getApiUrl: function () {
+            return apiUrl;
+          }
+        };
+      };
+
+      this.setApiUrl = function (apiUrl) {
+        this.apiUrl = apiUrl;
+      };
+
+    });
+
+})();
+
+
 
 (function () {
 
@@ -608,22 +769,22 @@
     .module('ngBraveNavigation')
     .factory('BraveNavigationService', BraveNavigationService);
 
-  BraveNavigationService.$inject = ['$http', '$q', 'BraveNavigation', 'NavigationTransformer'];
+  BraveNavigationService.$inject = ['$http', '$q', 'BraveNavigationConfig', 'NavigationTransformer'];
 
   /**
    *
    * @param {object} $http - Http object
    * @param {object} $q - Query object
-   * @param {object} braveNavigation - app config object provider
+   * @param {object} braveNavigationConfig - app config object provider
    * @param {object} navigationTransformer - doc list transformer object
    * @returns {{get: ngBraveNavigation.get}} - Service Factory
    * @constructor
    */
-  function BraveNavigationService($http, $q, braveNavigation, navigationTransformer) {
+  function BraveNavigationService($http, $q, braveNavigationConfig, navigationTransformer) {
 
     var cache = {};
 
-    var apiUrl = braveNavigation.getApiUrl();
+    var apiUrl = braveNavigationConfig.getApiUrl();
 
     /**
      * @name Docs
@@ -670,6 +831,53 @@
 })();
 
 /**
+ * CategoriesTransformer
+ * @namespace ngBraveNavigation
+ */
+(function () {
+  'use strict';
+
+  angular
+    .module('ngBraveNavigation')
+    .factory('CategoriesTransformer', CategoriesTransformer);
+
+  CategoriesTransformer.$inject = ['MenuItem'];
+
+  function CategoriesTransformer(MenuItem) {
+    return function (response) {
+
+      var result = (typeof response === 'string') ? angular.fromJson(response) : response;
+
+      var data = [];
+      if (result.data.length > 0) {
+
+        data = _.map(result.data, function (item) {
+
+          if (item.is_visible === true) {
+
+            var menuItemObj = {};
+
+            menuItemObj.title =  item.name;
+            menuItemObj.sref = 'productHome.list';
+            menuItemObj.icon = null;
+            menuItemObj.data = {"slug": item.slug};
+            menuItemObj.href = null;
+
+            return new MenuItem(menuItemObj);
+          }
+
+        });
+      }
+
+      return {
+        items: data
+      };
+    };
+  }
+
+}());
+
+/**
  * NavigationTransformer
  * @namespace ngBraveNavigation
  */
@@ -684,6 +892,7 @@
 
   function NavigationTransformer(MenuItem) {
     return function (response) {
+
       var result = (typeof response === 'string') ? angular.fromJson(response) : response;
       var data = [];
       if (result.items.length > 0) {

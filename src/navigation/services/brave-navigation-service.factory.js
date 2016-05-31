@@ -5,22 +5,22 @@
     .module('ngBraveNavigation')
     .factory('BraveNavigationService', BraveNavigationService);
 
-  BraveNavigationService.$inject = ['$http', '$q', 'BraveNavigation', 'NavigationTransformer'];
+  BraveNavigationService.$inject = ['$http', '$q', 'BraveNavigationConfig', 'NavigationTransformer'];
 
   /**
    *
    * @param {object} $http - Http object
    * @param {object} $q - Query object
-   * @param {object} braveNavigation - app config object provider
+   * @param {object} braveNavigationConfig - app config object provider
    * @param {object} navigationTransformer - doc list transformer object
    * @returns {{get: ngBraveNavigation.get}} - Service Factory
    * @constructor
    */
-  function BraveNavigationService($http, $q, braveNavigation, navigationTransformer) {
+  function BraveNavigationService($http, $q, braveNavigationConfig, navigationTransformer) {
 
     var cache = {};
 
-    var apiUrl = braveNavigation.getApiUrl();
+    var apiUrl = braveNavigationConfig.getApiUrl();
 
     /**
      * @name Docs

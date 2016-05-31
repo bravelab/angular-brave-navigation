@@ -2,7 +2,7 @@
   "name": "angular-brave-navigation",
   "description": "Global navigation for all ajax-requests",
   "main": "dist/angular-brave-navigation.min.js",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "private": false,
   "license": "MIT",
   "author": {

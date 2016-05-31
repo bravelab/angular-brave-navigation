@@ -3,22 +3,27 @@
 
   angular
     .module('ngBraveNavigation')
-    .directive('braveNavigationFront', ['$rootScope', '$compile', 'BraveNavigationService', function ($rootScope, $compile, braveNavigationService) {
+    .directive('braveNavigationCategories', ['$rootScope', '$compile', 'BraveNavigationCategories', function ($rootScope, $compile, braveNavigationCategories) {
 
       return {
         restrict: 'E',
+        templateUrl: '',
         scope: {
-          symbol: '@symbol'
+          items: '@items'
         },
         compile: function (element, attrs) {
 
-          braveNavigationService.get(attrs.symbol).then(function (data) {
+          // rendering
+          console.log('Attributes', attrs.items);
 
-            // Helper function
+          braveNavigationCategories.get().then(function (data) {
+
             function _createItem(item, parent, level) {
-              var li = $('<li />', {'ui-sref-active': 'active'});
+              var li = $('<li />'); // {'ui-sref-active': 'active'}
               var a = $('<a />');
               var i = $('<i />');
+
+              console.log('braveNavigationFront', item);
 
               li.append(a);
 
@@ -34,14 +39,10 @@
                 a.attr('ui-sref', srefValue);
               }
 
-
               if (item.href) {
                 a.attr('href', item.href);
               }
-              if (item.icon) {
-                i.attr('class', 'fa fa-lg fa-fw fa-' + item.icon);
-                a.append(i);
-              }
+
               if (item.title) {
                 a.attr('title', item.title);
                 if (level === 1) {
@@ -63,12 +64,20 @@
               parent.append(li);
             }
 
+
             // Generate menu
             var ul = $('<ul />', {
-              'smart-menu': ''
-            });
+              'data-menu': "test"
+            })
+              .addClass('categories-list')
+              .addClass('collapsed')
+            ;
+
             _.forEach(data.items, function (item) {
-              _createItem(item, ul, 1);
+
+              if (typeof item !== 'undefined') {
+                _createItem(item, ul, 1);
+              }
             });
 
             var $scope = $rootScope.$new();
@@ -78,7 +87,6 @@
             var _element = linkingFunction($scope);
 
             element.replaceWith(_element);
-
           });
         }
       };
