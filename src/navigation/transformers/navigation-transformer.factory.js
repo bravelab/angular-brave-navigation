@@ -13,6 +13,7 @@
 
   function NavigationTransformer(MenuItem) {
     return function (response) {
+
       var result = (typeof response === 'string') ? angular.fromJson(response) : response;
       var data = [];
       if (result.items.length > 0) {

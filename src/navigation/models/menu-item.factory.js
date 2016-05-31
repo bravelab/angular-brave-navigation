@@ -18,12 +18,12 @@
       this.sref = data.sref;
       this.icon = data.icon;
       this.href = data.href;
+      this.data = data.data;
 
       // TODO: recurse tree
       if (typeof data.items !== 'string') {
         this.items = data.items;
       }
-
     };
 
     return factory;

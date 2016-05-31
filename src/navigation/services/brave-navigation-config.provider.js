@@ -8,7 +8,7 @@
    */
   angular
     .module('ngBraveNavigation')
-    .provider('BraveNavigation', function () {
+    .provider('BraveNavigationConfig', function () {
 
       this.apiUrl = '/api';
 

@@ -3,24 +3,24 @@
 
   angular
     .module('ngBraveNavigation')
-    .factory('BraveNavigationServiceCategories', BraveNavigationServiceCategories);
+    .factory('BraveNavigationCategories', BraveNavigationCategories);
 
-  BraveNavigationServiceCategories.$inject = ['$http', '$q', 'BraveNavigation', 'NavigationTransformer'];
+  BraveNavigationCategories.$inject = ['$http', '$q', 'BraveNavigationConfig', 'CategoriesTransformer'];
 
   /**
    *
    * @param {object} $http - Http object
    * @param {object} $q - Query object
-   * @param {object} braveNavigation - app config object provider
-   * @param {object} navigationTransformer - doc list transformer object
+   * @param {object} braveNavigationConfig - app config object provider
+   * @param {object} categoriesTransformer - doc list transformer object
    * @returns {{get: ngBraveNavigation.get}} - Service Factory
    * @constructor
    */
-  function BraveNavigationServiceCategories($http, $q, braveNavigation, navigationTransformer) {
+  function BraveNavigationCategories($http, $q, braveNavigationConfig, categoriesTransformer) {
 
     var cache = {};
 
-    var apiUrl = braveNavigation.getApiUrl();
+    var apiUrl = braveNavigationConfig.getApiUrl();
 
     /**
      * @name Docs
@@ -49,8 +49,8 @@
       } else {
         $http({
           method: 'GET',
-          url: apiUrl + '/products/categories/',
-          transformResponse: navigationTransformer
+          url: apiUrl + '/products/categories',
+          transformResponse: categoriesTransformer
         })
           .then(function (data) {
             cache[id] = data.data;
