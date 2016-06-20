@@ -1,12 +1,12 @@
 /**
  * CategoriesTransformer
- * @namespace ngBraveNavigation
+ * @namespace brave.navigation
  */
 (function () {
   'use strict';
 
   angular
-    .module('ngBraveNavigation')
+    .module('brave.navigation')
     .factory('CategoriesTransformer', CategoriesTransformer);
 
   CategoriesTransformer.$inject = ['MenuItem'];
@@ -28,7 +28,7 @@
             menuItemObj.title =  item.name;
             menuItemObj.sref = 'productHome.list';
             menuItemObj.icon = null;
-            menuItemObj.data = {"slug": item.slug};
+            menuItemObj.data = {'slug': item.slug};
             menuItemObj.href = null;
 
             return new MenuItem(menuItemObj);

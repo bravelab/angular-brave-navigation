@@ -3,12 +3,12 @@
 
   /**
    * @ngdoc overview
-   * @name app [ngBraveNavigation]
-   * @description Show http errors by angular-navigation
+   * @name brave.navigation [brave.navigation]
+   * @description Simple navigation directives and services
    */
   angular
-    .module('ngBraveNavigation', [])
-    .value('version', '0.0.3');
+    .module('brave.navigation', [])
+    .value('version', '0.0.4');
 
 })();
 
@@ -53,18 +53,7 @@
   'use strict';
 
   angular
-    .module('ngBraveNavigation')
-    .constant('navigationConfig', {
-      apiUrl: '/api'
-    });
-
-}());
-
-(function () {
-  'use strict';
-
-  angular
-    .module('ngBraveNavigation')
+    .module('brave.navigation')
     .controller('BraveNavigationController', BraveNavigationController);
 
   BraveNavigationController.$inject = ['$scope', 'BraveNavigationService'];
@@ -82,7 +71,7 @@
     /**
      * @name activate
      * @desc Actions to be performed when this controller is instantiated
-     * @memberOf ngBraveNavigation.BraveNavigationController
+     * @memberOf brave.navigation.BraveNavigationController
      */
     function activate() {
       braveNavigationService.get($scope.symbol).then(function (navigation) {
@@ -98,7 +87,7 @@
   'use strict';
 
   angular
-    .module('ngBraveNavigation')
+    .module('brave.navigation')
     .directive('braveNavigationCategories', ['$rootScope', '$compile', 'BraveNavigationCategories', function ($rootScope, $compile, braveNavigationCategories) {
 
       return {
@@ -110,16 +99,12 @@
         compile: function (element, attrs) {
 
           // rendering
-          console.log('Attributes', attrs.items);
-
           braveNavigationCategories.get().then(function (data) {
 
             function _createItem(item, parent, level) {
               var li = $('<li />'); // {'ui-sref-active': 'active'}
               var a = $('<a />');
               var i = $('<i />');
-
-              console.log('braveNavigationFront', item);
 
               li.append(a);
 
@@ -163,7 +148,7 @@
 
             // Generate menu
             var ul = $('<ul />', {
-              'data-menu': "test"
+              'data-menu': 'test'
             })
               .addClass('categories-list')
               .addClass('collapsed')
@@ -194,7 +179,7 @@
   'use strict';
 
   angular
-    .module('ngBraveNavigation')
+    .module('brave.navigation')
     .directive('braveNavigationFront', ['$rootScope', '$compile', 'BraveNavigationService', function ($rootScope, $compile, braveNavigationService) {
 
       return {
@@ -282,7 +267,7 @@
   'use strict';
 
   angular
-    .module('ngBraveNavigation')
+    .module('brave.navigation')
     .directive('braveNavigation', ['$rootScope', '$compile', 'BraveNavigationService', function ($rootScope, $compile, braveNavigationService) {
 
       return {
@@ -360,7 +345,7 @@
   'use strict';
 
   angular
-    .module('ngBraveNavigation')
+    .module('brave.navigation')
     .directive('smartMenuItems', function ($http, $rootScope, $compile) {
       return {
         restrict: 'A',
@@ -431,7 +416,7 @@
   'use strict';
 
   angular
-    .module('ngBraveNavigation')
+    .module('brave.navigation')
     .directive('smartMenuItems2', function ($http, $rootScope, $compile, APP_CONFIG, Authentication) {
       return {
         restrict: 'A',
@@ -507,7 +492,7 @@
   'use strict';
 
   angular
-    .module('ngBraveNavigation')
+    .module('brave.navigation')
     .directive('smartMenu', function ($state, $rootScope) {
       return {
         restrict: 'A',
@@ -576,13 +561,13 @@
 
 /**
  * MenuItem
- * @namespace ngBraveNavigation
+ * @namespace brave.navigation
  */
 (function () {
   'use strict';
 
   angular
-    .module('ngBraveNavigation')
+    .module('brave.navigation')
     .factory('MenuItem', MenuItem);
 
   MenuItem.$inject = [];
@@ -610,26 +595,60 @@
 (function () {
   'use strict';
 
+  /**
+   * @ngdoc overview
+   * @name brave.navigation [brave.navigation]
+   * @description Config provider for brave.navigation
+   */
   angular
-    .module('ngBraveNavigation')
+    .module('brave.navigation')
+    .provider('BraveNavigation', function () {
+
+      this.apiUrl = '/api';
+
+      this.$get = function () {
+        var apiUrl = this.apiUrl;
+
+        return {
+          getApiUrl: function () {
+            return apiUrl;
+          }
+        };
+      };
+
+      this.setApiUrl = function (apiUrl) {
+        this.apiUrl = apiUrl;
+      };
+
+    });
+
+})();
+
+
+
+(function () {
+  'use strict';
+
+  angular
+    .module('brave.navigation')
     .factory('BraveNavigationCategories', BraveNavigationCategories);
 
-  BraveNavigationCategories.$inject = ['$http', '$q', 'BraveNavigationConfig', 'CategoriesTransformer'];
+  BraveNavigationCategories.$inject = ['$http', '$q', 'BraveNavigation', 'CategoriesTransformer'];
 
   /**
    *
    * @param {object} $http - Http object
    * @param {object} $q - Query object
-   * @param {object} braveNavigationConfig - app config object provider
+   * @param {object} braveNavigation - module config provider
    * @param {object} categoriesTransformer - doc list transformer object
-   * @returns {{get: ngBraveNavigation.get}} - Service Factory
+   * @returns {{get: brave.navigation.get}} - Service Factory
    * @constructor
    */
-  function BraveNavigationCategories($http, $q, braveNavigationConfig, categoriesTransformer) {
+  function BraveNavigationCategories($http, $q, braveNavigation, categoriesTransformer) {
 
     var cache = {};
 
-    var apiUrl = braveNavigationConfig.getApiUrl();
+    var apiUrl = braveNavigation.getApiUrl();
 
     /**
      * @name Docs
@@ -644,9 +663,8 @@
     /**
      * @name get
      * @desc Get single doc by type and slug params
-     * @param {string} symbol Document symbol
      * @returns {Promise} - Promise an object
-     * @memberOf ngBraveNavigation
+     * @memberOf brave.navigation
      */
     function get() {
 
@@ -676,45 +694,11 @@
 })();
 
 (function () {
-  'use strict';
-
-  /**
-   * @ngdoc overview
-   * @name app [ngBraveNavigation]
-   * @description Config provider for ngBraveNavigation
-   */
-  angular
-    .module('ngBraveNavigation')
-    .provider('BraveNavigationConfig', function () {
-
-      this.apiUrl = '/api';
-
-      this.$get = function () {
-        var apiUrl = this.apiUrl;
-
-        return {
-          getApiUrl: function () {
-            return apiUrl;
-          }
-        };
-      };
-
-      this.setApiUrl = function (apiUrl) {
-        this.apiUrl = apiUrl;
-      };
-
-    });
-
-})();
-
-
-
-(function () {
 
   'use strict';
 
   angular
-    .module('ngBraveNavigation')
+    .module('brave.navigation')
     .factory('BraveNavigationServiceMock', ['$q', 'MenuItem', function ($q, MenuItem) {
 
       var defaultNav = {
@@ -766,25 +750,25 @@
   'use strict';
 
   angular
-    .module('ngBraveNavigation')
+    .module('brave.navigation')
     .factory('BraveNavigationService', BraveNavigationService);
 
-  BraveNavigationService.$inject = ['$http', '$q', 'BraveNavigationConfig', 'NavigationTransformer'];
+  BraveNavigationService.$inject = ['$http', '$q', 'BraveNavigation', 'NavigationTransformer'];
 
   /**
    *
    * @param {object} $http - Http object
    * @param {object} $q - Query object
-   * @param {object} braveNavigationConfig - app config object provider
+   * @param {object} braveNavigation - app config object provider
    * @param {object} navigationTransformer - doc list transformer object
-   * @returns {{get: ngBraveNavigation.get}} - Service Factory
+   * @returns {{get: brave.navigation.get}} - Service Factory
    * @constructor
    */
-  function BraveNavigationService($http, $q, braveNavigationConfig, navigationTransformer) {
+  function BraveNavigationService($http, $q, braveNavigation, navigationTransformer) {
 
     var cache = {};
 
-    var apiUrl = braveNavigationConfig.getApiUrl();
+    var apiUrl = braveNavigation.getApiUrl();
 
     /**
      * @name Docs
@@ -801,7 +785,7 @@
      * @desc Get single doc by type and slug params
      * @param {string} symbol Document symbol
      * @returns {Promise} - Promise an object
-     * @memberOf ngBraveNavigation
+     * @memberOf brave.navigation
      */
     function get(symbol) {
 
@@ -832,13 +816,13 @@
 
 /**
  * CategoriesTransformer
- * @namespace ngBraveNavigation
+ * @namespace brave.navigation
  */
 (function () {
   'use strict';
 
   angular
-    .module('ngBraveNavigation')
+    .module('brave.navigation')
     .factory('CategoriesTransformer', CategoriesTransformer);
 
   CategoriesTransformer.$inject = ['MenuItem'];
@@ -860,7 +844,7 @@
             menuItemObj.title =  item.name;
             menuItemObj.sref = 'productHome.list';
             menuItemObj.icon = null;
-            menuItemObj.data = {"slug": item.slug};
+            menuItemObj.data = {'slug': item.slug};
             menuItemObj.href = null;
 
             return new MenuItem(menuItemObj);
@@ -879,13 +863,13 @@
 
 /**
  * NavigationTransformer
- * @namespace ngBraveNavigation
+ * @namespace brave.navigation
  */
 (function () {
   'use strict';
 
   angular
-    .module('ngBraveNavigation')
+    .module('brave.navigation')
     .factory('NavigationTransformer', NavigationTransformer);
 
   NavigationTransformer.$inject = ['MenuItem'];

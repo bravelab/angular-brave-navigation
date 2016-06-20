@@ -12,7 +12,7 @@
     var braveNavigationService;
 
     beforeEach(function () {
-      module('ngBraveNavigation');
+      module('brave.navigation');
     });
 
     beforeEach(inject(function (_BraveNavigationService_) {

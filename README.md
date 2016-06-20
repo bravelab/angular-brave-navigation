@@ -1,11 +1,11 @@
-ngBraveNavigation - Customizable preloader for all ajax-requests
+brave.navigation - Customizable preloader for all ajax-requests
 ============================================================
 
 
 Use
 ---
 
-Add `ngBraveNavigation` to your app modules
+Add `brave.navigation` to your app modules
 Add $.navigation
 
 Development

@@ -3,17 +3,17 @@
 
   /**
    * @ngdoc overview
-   * @name ngBraveNavigation
-   * @description ngBraveNavigation tests
+   * @name brave.navigation
+   * @description brave.navigation tests
    *
    */
-  describe('ngBraveNavigation module', function () {
+  describe('brave.navigation module', function () {
 
-    beforeEach(module('ngBraveNavigation'));
+    beforeEach(module('brave.navigation'));
 
     describe('value - version', function () {
       it('should return current version', inject(function (version) {
-        expect(version).toEqual('0.0.3');
+        expect(version).toEqual('0.0.4');
       }));
     });
 

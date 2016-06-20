@@ -3,7 +3,7 @@
   'use strict';
 
   angular
-    .module('ngBraveNavigation')
+    .module('brave.navigation')
     .factory('BraveNavigationServiceMock', ['$q', 'MenuItem', function ($q, MenuItem) {
 
       var defaultNav = {

@@ -2,7 +2,7 @@
   'use strict';
 
   angular
-    .module('ngBraveNavigation')
+    .module('brave.navigation')
     .directive('braveNavigationCategories', ['$rootScope', '$compile', 'BraveNavigationCategories', function ($rootScope, $compile, braveNavigationCategories) {
 
       return {
@@ -14,16 +14,12 @@
         compile: function (element, attrs) {
 
           // rendering
-          console.log('Attributes', attrs.items);
-
           braveNavigationCategories.get().then(function (data) {
 
             function _createItem(item, parent, level) {
               var li = $('<li />'); // {'ui-sref-active': 'active'}
               var a = $('<a />');
               var i = $('<i />');
-
-              console.log('braveNavigationFront', item);
 
               li.append(a);
 
@@ -67,7 +63,7 @@
 
             // Generate menu
             var ul = $('<ul />', {
-              'data-menu': "test"
+              'data-menu': 'test'
             })
               .addClass('categories-list')
               .addClass('collapsed')

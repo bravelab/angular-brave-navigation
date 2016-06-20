@@ -2,25 +2,25 @@
   'use strict';
 
   angular
-    .module('ngBraveNavigation')
+    .module('brave.navigation')
     .factory('BraveNavigationCategories', BraveNavigationCategories);
 
-  BraveNavigationCategories.$inject = ['$http', '$q', 'BraveNavigationConfig', 'CategoriesTransformer'];
+  BraveNavigationCategories.$inject = ['$http', '$q', 'BraveNavigation', 'CategoriesTransformer'];
 
   /**
    *
    * @param {object} $http - Http object
    * @param {object} $q - Query object
-   * @param {object} braveNavigationConfig - app config object provider
+   * @param {object} braveNavigation - module config provider
    * @param {object} categoriesTransformer - doc list transformer object
-   * @returns {{get: ngBraveNavigation.get}} - Service Factory
+   * @returns {{get: brave.navigation.get}} - Service Factory
    * @constructor
    */
-  function BraveNavigationCategories($http, $q, braveNavigationConfig, categoriesTransformer) {
+  function BraveNavigationCategories($http, $q, braveNavigation, categoriesTransformer) {
 
     var cache = {};
 
-    var apiUrl = braveNavigationConfig.getApiUrl();
+    var apiUrl = braveNavigation.getApiUrl();
 
     /**
      * @name Docs
@@ -35,9 +35,8 @@
     /**
      * @name get
      * @desc Get single doc by type and slug params
-     * @param {string} symbol Document symbol
      * @returns {Promise} - Promise an object
-     * @memberOf ngBraveNavigation
+     * @memberOf brave.navigation
      */
     function get() {
 
