@@ -11,19 +11,18 @@
           symbol: '@symbol'
         },
         compile: function (element, attrs) {
-
           braveNavigationService.get(attrs.symbol).then(function (data) {
 
             // Helper function
             function _createItem(item, parent, level) {
-              var li = $('<li />', {'ui-sref-active': 'active'});
+              var li = $('<li />', {'data-ui-sref-active': 'active'});
               var a = $('<a />');
               var i = $('<i />');
 
               li.append(a);
 
               if (item.sref) {
-                a.attr('ui-sref', item.sref);
+                a.attr('data-ui-sref', item.sref);
               }
               if (item.href) {
                 a.attr('href', item.href);
@@ -68,7 +67,6 @@
             var _element = linkingFunction($scope);
 
             element.replaceWith(_element);
-
           });
         }
       };
