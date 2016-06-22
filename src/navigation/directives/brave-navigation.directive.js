@@ -3,7 +3,7 @@
 
   angular
     .module('brave.navigation')
-    .directive('braveNavigation', ['$rootScope', '$compile', 'BraveNavigationService', function ($rootScope, $compile, braveNavigationService) {
+    .directive('braveNavigation', ['$rootScope', '$compile', '$translate', 'BraveNavigationService', function ($rootScope, $compile, $translate, braveNavigationService) {
 
       return {
         restrict: 'E',
@@ -32,11 +32,11 @@
                 a.append(i);
               }
               if (item.title) {
-                a.attr('title', item.title);
+                a.attr('title', $translate.instant(item.title));
                 if (level === 1) {
-                  a.append('<span class="menu-item-parent">' + item.title + '</span>');
+                  a.append('<span class="menu-item-parent">' + $translate.instant(item.title) + '</span>');
                 } else {
-                  a.append(' ' + item.title);
+                  a.append(' ' + $translate.instant(item.title));
 
                 }
               }
