@@ -99,90 +99,102 @@
 
   angular
     .module('ngBraveNavigation')
-    .directive('braveNavigationCategories', ['$rootScope', '$compile', 'BraveNavigationCategories', function ($rootScope, $compile, braveNavigationCategories) {
+    .directive('braveNavigationCategories', ['$compile', function ($compile) {
+
+      var renderMenu = function (menuItems, currentScope) {
+
+        function _createItem(item, parent, level) {
+
+          var li = $('<li />'); // {'ui-sref-active': 'active'}
+          var a = $('<a />');
+          var i = $('<i />');
+
+          li.append(a);
+
+          if (item.sref) {
+
+            var srefValue;
+            srefValue = item.sref;
+
+            if (item.data) {
+
+              srefValue += '(' + JSON.stringify(item.data) + ')';
+            }
+            a.attr('ui-sref', srefValue);
+          }
+
+          if (item.href) {
+            a.attr('href', item.href);
+          }
+
+          if (item.title) {
+            a.attr('title', item.title);
+            if (level === 1) {
+              a.append('<span class="menu-item-parent">' + item.title + '</span>');
+            } else {
+              a.append(' ' + item.title);
+            }
+          }
+
+          if (item.items) {
+            var ul = $('<ul />');
+            li.append(ul);
+            li.attr('data-menu-collapse', '');
+            _.forEach(item.items, function (child) {
+              _createItem(child, ul, level + 1);
+            });
+          }
+          parent.append(li);
+        }
+
+        // Generate menu
+        var ul = $('<ul />', {
+          'data-menu': "test"
+        })
+          .addClass('categories-list')
+          .addClass('collapsed')
+        ;
+
+        if (angular.isDefined(menuItems.items)) {
+
+          _.forEach(menuItems.items, function (item) {
+
+            if (typeof item !== 'undefined') {
+              _createItem(item, ul, 1);
+            }
+          });
+
+          var html = $('<div>').append(ul).html();
+          var linkingFunction = $compile(html);
+
+          var _element = linkingFunction(currentScope);
+        }
+
+        return _element;
+      };
 
       return {
-        restrict: 'E',
-        templateUrl: '',
+        restrict: 'AE',
         scope: {
-          items: '@items'
+          items: '='
         },
-        compile: function (element, attrs) {
+        controller: function ($scope) {
 
-          // rendering
-          console.log('Attributes', attrs.items);
+          $scope.$watch('items', function (newItems) {
 
-          braveNavigationCategories.get().then(function (data) {
-
-            function _createItem(item, parent, level) {
-              var li = $('<li />'); // {'ui-sref-active': 'active'}
-              var a = $('<a />');
-              var i = $('<i />');
-
-              console.log('braveNavigationFront', item);
-
-              li.append(a);
-
-              if (item.sref) {
-
-                var srefValue;
-                srefValue = item.sref;
-
-                if (item.data) {
-
-                  srefValue += '(' + JSON.stringify(item.data) + ')';
-                }
-                a.attr('ui-sref', srefValue);
-              }
-
-              if (item.href) {
-                a.attr('href', item.href);
-              }
-
-              if (item.title) {
-                a.attr('title', item.title);
-                if (level === 1) {
-                  a.append('<span class="menu-item-parent">' + item.title + '</span>');
-                } else {
-                  a.append(' ' + item.title);
-
-                }
-              }
-
-              if (item.items) {
-                var ul = $('<ul />');
-                li.append(ul);
-                li.attr('data-menu-collapse', '');
-                _.forEach(item.items, function (child) {
-                  _createItem(child, ul, level + 1);
-                });
-              }
-              parent.append(li);
+            if (angular.isDefined(newItems)) {
+              $scope.renderedMenu = renderMenu(newItems, $scope);
             }
+          });
+        },
+        link: function (scope, element, attrs) {
 
+          scope.$watch('renderedMenu', function (newMenuValue) {
 
-            // Generate menu
-            var ul = $('<ul />', {
-              'data-menu': "test"
-            })
-              .addClass('categories-list')
-              .addClass('collapsed')
-            ;
-
-            _.forEach(data.items, function (item) {
-
-              if (typeof item !== 'undefined') {
-                _createItem(item, ul, 1);
-              }
-            });
-
-            var $scope = $rootScope.$new();
-            var html = $('<div>').append(ul).html();
-            var linkingFunction = $compile(html);
-
-            var _element = linkingFunction($scope);
-
-            element.replaceWith(_element);
+            element.text('LOADING');
+            if (angular.isDefined(newMenuValue) && newMenuValue) {
+              element.replaceWith(newMenuValue);
+            }
           });
         }
       };
@@ -610,74 +622,6 @@
 (function () {
   'use strict';
 
-  angular
-    .module('ngBraveNavigation')
-    .factory('BraveNavigationCategories', BraveNavigationCategories);
-
-  BraveNavigationCategories.$inject = ['$http', '$q', 'BraveNavigationConfig', 'CategoriesTransformer'];
-
-  /**
-   *
-   * @param {object} $http - Http object
-   * @param {object} $q - Query object
-   * @param {object} braveNavigationConfig - app config object provider
-   * @param {object} categoriesTransformer - doc list transformer object
-   * @returns {{get: ngBraveNavigation.get}} - Service Factory
-   * @constructor
-   */
-  function BraveNavigationCategories($http, $q, braveNavigationConfig, categoriesTransformer) {
-
-    var cache = {};
-
-    var apiUrl = braveNavigationConfig.getApiUrl();
-
-    /**
-     * @name Docs
-     * @desc The Factory to be returned
-     */
-    var factory = {
-      get: get
-    };
-
-    return factory;
-
-    /**
-     * @name get
-     * @desc Get single doc by type and slug params
-     * @param {string} symbol Document symbol
-     * @returns {Promise} - Promise an object
-     * @memberOf ngBraveNavigation
-     */
-    function get() {
-
-      var deferred = $q.defer();
-      var id = 'categories';
-
-      if (typeof cache[id] !== 'undefined') {
-        deferred.resolve(cache[id]);
-      } else {
-        $http({
-          method: 'GET',
-          url: apiUrl + '/products/categories',
-          transformResponse: categoriesTransformer
-        })
-          .then(function (data) {
-            cache[id] = data.data;
-            deferred.resolve(cache[id]);
-          }, function (data) {
-            deferred.reject(data);
-          });
-      }
-
-      return deferred.promise;
-    }
-
-  }
-})();
-
-(function () {
-  'use strict';
-
   /**
    * @ngdoc overview
    * @name app [ngBraveNavigation]
@@ -829,53 +773,6 @@
 
   }
 })();
-
-/**
- * CategoriesTransformer
- * @namespace ngBraveNavigation
- */
-(function () {
-  'use strict';
-
-  angular
-    .module('ngBraveNavigation')
-    .factory('CategoriesTransformer', CategoriesTransformer);
-
-  CategoriesTransformer.$inject = ['MenuItem'];
-
-  function CategoriesTransformer(MenuItem) {
-    return function (response) {
-
-      var result = (typeof response === 'string') ? angular.fromJson(response) : response;
-
-      var data = [];
-      if (result.data.length > 0) {
-
-        data = _.map(result.data, function (item) {
-
-          if (item.is_visible === true) {
-
-            var menuItemObj = {};
-
-            menuItemObj.title =  item.name;
-            menuItemObj.sref = 'productHome.list';
-            menuItemObj.icon = null;
-            menuItemObj.data = {"slug": item.slug};
-            menuItemObj.href = null;
-
-            return new MenuItem(menuItemObj);
-          }
-
-        });
-      }
-
-      return {
-        items: data
-      };
-    };
-  }
-
-}());
 
 /**
  * NavigationTransformer
