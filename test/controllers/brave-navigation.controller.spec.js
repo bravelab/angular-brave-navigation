@@ -19,7 +19,7 @@
       $scope;
 
     beforeEach(function () {
-      module('ngBraveNavigation');
+      module('brave.navigation');
     });
 
     beforeEach(inject(function ($injector) {

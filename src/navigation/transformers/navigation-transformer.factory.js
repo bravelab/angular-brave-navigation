@@ -1,12 +1,12 @@
 /**
  * NavigationTransformer
- * @namespace ngBraveNavigation
+ * @namespace brave.navigation
  */
 (function () {
   'use strict';
 
   angular
-    .module('ngBraveNavigation')
+    .module('brave.navigation')
     .factory('NavigationTransformer', NavigationTransformer);
 
   NavigationTransformer.$inject = ['MenuItem'];

@@ -2,8 +2,8 @@
   'use strict';
 
   angular
-    .module('ngBraveNavigation')
-    .directive('braveNavigation', ['$rootScope', '$compile', 'BraveNavigationService', function ($rootScope, $compile, braveNavigationService) {
+    .module('brave.navigation')
+    .directive('braveNavigation', ['$rootScope', '$compile', '$translate', 'BraveNavigationService', function ($rootScope, $compile, $translate, braveNavigationService) {
 
       return {
         restrict: 'E',
@@ -11,19 +11,18 @@
           symbol: '@symbol'
         },
         compile: function (element, attrs) {
-
           braveNavigationService.get(attrs.symbol).then(function (data) {
 
             // Helper function
             function _createItem(item, parent, level) {
-              var li = $('<li />', {'ui-sref-active': 'active'});
+              var li = $('<li />', {'data-ui-sref-active': 'active'});
               var a = $('<a />');
               var i = $('<i />');
 
               li.append(a);
 
               if (item.sref) {
-                a.attr('ui-sref', item.sref);
+                a.attr('data-ui-sref', item.sref);
               }
               if (item.href) {
                 a.attr('href', item.href);
@@ -33,11 +32,11 @@
                 a.append(i);
               }
               if (item.title) {
-                a.attr('title', item.title);
+                a.attr('title', $translate.instant(item.title));
                 if (level === 1) {
-                  a.append('<span class="menu-item-parent">' + item.title + '</span>');
+                  a.append('<span class="menu-item-parent">' + $translate.instant(item.title) + '</span>');
                 } else {
-                  a.append(' ' + item.title);
+                  a.append(' ' + $translate.instant(item.title));
 
                 }
               }
@@ -68,7 +67,6 @@
             var _element = linkingFunction($scope);
 
             element.replaceWith(_element);
-
           });
         }
       };

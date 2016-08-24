@@ -1,12 +1,12 @@
 /**
  * MenuItem
- * @namespace ngBraveNavigation
+ * @namespace brave.navigation
  */
 (function () {
   'use strict';
 
   angular
-    .module('ngBraveNavigation')
+    .module('brave.navigation')
     .factory('MenuItem', MenuItem);
 
   MenuItem.$inject = [];

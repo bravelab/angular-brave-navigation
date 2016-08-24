@@ -3,12 +3,12 @@
 
   /**
    * @ngdoc overview
-   * @name app [ngBraveNavigation]
-   * @description Config provider for ngBraveNavigation
+   * @name brave.navigation [brave.navigation]
+   * @description Config provider for brave.navigation
    */
   angular
-    .module('ngBraveNavigation')
-    .provider('BraveNavigationConfig', function () {
+    .module('brave.navigation')
+    .provider('BraveNavigation', function () {
 
       this.apiUrl = '/api';
 

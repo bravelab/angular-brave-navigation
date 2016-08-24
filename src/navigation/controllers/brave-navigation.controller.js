@@ -2,7 +2,7 @@
   'use strict';
 
   angular
-    .module('ngBraveNavigation')
+    .module('brave.navigation')
     .controller('BraveNavigationController', BraveNavigationController);
 
   BraveNavigationController.$inject = ['$scope', 'BraveNavigationService'];
@@ -20,7 +20,7 @@
     /**
      * @name activate
      * @desc Actions to be performed when this controller is instantiated
-     * @memberOf ngBraveNavigation.BraveNavigationController
+     * @memberOf brave.navigation.BraveNavigationController
      */
     function activate() {
       braveNavigationService.get($scope.symbol).then(function (navigation) {

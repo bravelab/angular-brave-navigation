@@ -2,7 +2,7 @@
   'use strict';
 
   angular
-    .module('ngBraveNavigation')
+    .module('brave.navigation')
     .directive('braveNavigationCategories', ['$compile', function ($compile) {
 
       var renderMenu = function (menuItems, currentScope) {
@@ -51,13 +51,13 @@
           parent.append(li);
         }
 
-        // Generate menu
-        var ul = $('<ul />', {
-          'data-menu': "test"
-        })
-          .addClass('categories-list')
-          .addClass('collapsed')
-        ;
+          // Generate menu
+          var ul = $('<ul />', {
+            'data-menu': "test"
+          })
+            .addClass('categories-list')
+            .addClass('collapsed')
+          ;
 
         if (angular.isDefined(menuItems.items)) {
 

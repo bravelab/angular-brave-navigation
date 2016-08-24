@@ -12,7 +12,7 @@
     var braveNavigationServiceMock;
 
     beforeEach(function () {
-      module('ngBraveNavigation');
+      module('brave.navigation');
     });
 
     beforeEach(inject(function (_BraveNavigationServiceMock_) {
@@ -25,7 +25,6 @@
     });
 
     it('should defined object keys', function () {
-      console.log(braveNavigationServiceMock);
     //  expect(braveNavigationServiceMock.default[0].title).toBeDefined();
     //  expect(braveNavigationServiceMock.default[0].sref).toBeDefined();
     //  expect(braveNavigationServiceMock.default[0].icon).toBeDefined();

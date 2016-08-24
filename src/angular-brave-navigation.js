@@ -3,11 +3,11 @@
 
   /**
    * @ngdoc overview
-   * @name app [ngBraveNavigation]
-   * @description Show http errors by angular-navigation
+   * @name brave.navigation [brave.navigation]
+   * @description Simple navigation directives and services
    */
   angular
-    .module('ngBraveNavigation', [])
-    .value('version', '0.0.3');
+    .module('brave.navigation', [])
+    .value('version', '0.0.6');
 
 })();

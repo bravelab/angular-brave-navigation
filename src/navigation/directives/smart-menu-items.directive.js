@@ -2,7 +2,7 @@
   'use strict';
 
   angular
-    .module('ngBraveNavigation')
+    .module('brave.navigation')
     .directive('smartMenuItems', function ($http, $rootScope, $compile) {
       return {
         restrict: 'A',
