@@ -8,8 +8,7 @@
       var renderMenu = function (menuItems, currentScope) {
 
         function _createItem(item, parent, level) {
-
-          var li = $('<li />'); // {'ui-sref-active': 'active'}
+          var li = $('<li />', {'data-ui-sref-active': 'active'}); // {'ui-sref-active': 'active'}
           var a = $('<a />');
           var i = $('<i />');
 
@@ -24,7 +23,7 @@
 
               srefValue += '(' + JSON.stringify(item.data) + ')';
             }
-            a.attr('ui-sref', srefValue);
+            a.attr('data-ui-sref', srefValue);
           }
 
           if (item.href) {
@@ -40,24 +39,25 @@
             }
           }
 
-          if (item.items) {
+          if (item.items.length) {
             var ul = $('<ul />');
             li.append(ul);
             li.attr('data-menu-collapse', '');
             _.forEach(item.items, function (child) {
               _createItem(child, ul, level + 1);
             });
+          } else {
+            a.addClass('leaf');
           }
           parent.append(li);
         }
 
           // Generate menu
-          var ul = $('<ul />', {
-            'data-menu': "test"
-          })
-            .addClass('categories-list')
-            .addClass('collapsed')
-          ;
+        var ul = $('<ul />', {
+          'smart-menu': '',
+          'plus-icon': false
+        })
+        .addClass('categories-list');
 
         if (angular.isDefined(menuItems.items)) {
 

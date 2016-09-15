@@ -3,12 +3,12 @@
 
   /**
    * @ngdoc overview
-   * @name app [ngBraveNavigation]
-   * @description Show http errors by angular-navigation
+   * @name brave.navigation [brave.navigation]
+   * @description Simple navigation directives and services
    */
   angular
-    .module('ngBraveNavigation', [])
-    .value('version', '0.0.3');
+    .module('brave.navigation', [])
+    .value('version', '0.0.8');
 
 })();
 
@@ -53,18 +53,7 @@
   'use strict';
 
   angular
-    .module('ngBraveNavigation')
-    .constant('navigationConfig', {
-      apiUrl: '/api'
-    });
-
-}());
-
-(function () {
-  'use strict';
-
-  angular
-    .module('ngBraveNavigation')
+    .module('brave.navigation')
     .controller('BraveNavigationController', BraveNavigationController);
 
   BraveNavigationController.$inject = ['$scope', 'BraveNavigationService'];
@@ -82,7 +71,7 @@
     /**
      * @name activate
      * @desc Actions to be performed when this controller is instantiated
-     * @memberOf ngBraveNavigation.BraveNavigationController
+     * @memberOf brave.navigation.BraveNavigationController
      */
     function activate() {
       braveNavigationService.get($scope.symbol).then(function (navigation) {
@@ -98,14 +87,13 @@
   'use strict';
 
   angular
-    .module('ngBraveNavigation')
+    .module('brave.navigation')
     .directive('braveNavigationCategories', ['$compile', function ($compile) {
 
       var renderMenu = function (menuItems, currentScope) {
 
         function _createItem(item, parent, level) {
-
-          var li = $('<li />'); // {'ui-sref-active': 'active'}
+          var li = $('<li />', {'data-ui-sref-active': 'active'}); // {'ui-sref-active': 'active'}
           var a = $('<a />');
           var i = $('<i />');
 
@@ -120,7 +108,7 @@
 
               srefValue += '(' + JSON.stringify(item.data) + ')';
             }
-            a.attr('ui-sref', srefValue);
+            a.attr('data-ui-sref', srefValue);
           }
 
           if (item.href) {
@@ -136,24 +124,25 @@
             }
           }
 
-          if (item.items) {
+          if (item.items.length) {
             var ul = $('<ul />');
             li.append(ul);
             li.attr('data-menu-collapse', '');
             _.forEach(item.items, function (child) {
               _createItem(child, ul, level + 1);
             });
+          } else {
+            a.addClass('leaf');
           }
           parent.append(li);
         }
 
-        // Generate menu
+          // Generate menu
         var ul = $('<ul />', {
-          'data-menu': "test"
+          'smart-menu': '',
+          'plus-icon': false
         })
-          .addClass('categories-list')
-          .addClass('collapsed')
-        ;
+        .addClass('categories-list');
 
         if (angular.isDefined(menuItems.items)) {
 
@@ -206,7 +195,7 @@
   'use strict';
 
   angular
-    .module('ngBraveNavigation')
+    .module('brave.navigation')
     .directive('braveNavigationFront', ['$rootScope', '$compile', 'BraveNavigationService', function ($rootScope, $compile, braveNavigationService) {
 
       return {
@@ -294,8 +283,8 @@
   'use strict';
 
   angular
-    .module('ngBraveNavigation')
-    .directive('braveNavigation', ['$rootScope', '$compile', 'BraveNavigationService', function ($rootScope, $compile, braveNavigationService) {
+    .module('brave.navigation')
+    .directive('braveNavigation', ['$rootScope', '$compile', '$translate', 'BraveNavigationService', function ($rootScope, $compile, $translate, braveNavigationService) {
 
       return {
         restrict: 'E',
@@ -303,19 +292,18 @@
           symbol: '@symbol'
         },
         compile: function (element, attrs) {
-
           braveNavigationService.get(attrs.symbol).then(function (data) {
 
             // Helper function
             function _createItem(item, parent, level) {
-              var li = $('<li />', {'ui-sref-active': 'active'});
+              var li = $('<li />', {'data-ui-sref-active': 'active'});
               var a = $('<a />');
               var i = $('<i />');
 
               li.append(a);
 
               if (item.sref) {
-                a.attr('ui-sref', item.sref);
+                a.attr('data-ui-sref', item.sref);
               }
               if (item.href) {
                 a.attr('href', item.href);
@@ -325,11 +313,11 @@
                 a.append(i);
               }
               if (item.title) {
-                a.attr('title', item.title);
+                a.attr('title', $translate.instant(item.title));
                 if (level === 1) {
-                  a.append('<span class="menu-item-parent">' + item.title + '</span>');
+                  a.append('<span class="menu-item-parent">' + $translate.instant(item.title) + '</span>');
                 } else {
-                  a.append(' ' + item.title);
+                  a.append(' ' + $translate.instant(item.title));
 
                 }
               }
@@ -360,7 +348,6 @@
             var _element = linkingFunction($scope);
 
             element.replaceWith(_element);
-
           });
         }
       };
@@ -372,7 +359,7 @@
   'use strict';
 
   angular
-    .module('ngBraveNavigation')
+    .module('brave.navigation')
     .directive('smartMenuItems', function ($http, $rootScope, $compile) {
       return {
         restrict: 'A',
@@ -443,7 +430,7 @@
   'use strict';
 
   angular
-    .module('ngBraveNavigation')
+    .module('brave.navigation')
     .directive('smartMenuItems2', function ($http, $rootScope, $compile, APP_CONFIG, Authentication) {
       return {
         restrict: 'A',
@@ -519,18 +506,19 @@
   'use strict';
 
   angular
-    .module('ngBraveNavigation')
-    .directive('smartMenu', function ($state, $rootScope) {
+    .module('brave.navigation')
+    .directive('smartMenu', function ($state, $rootScope, $timeout) {
       return {
         restrict: 'A',
         link: function (scope, element, attrs) {
+          var addPlusSign = (attrs['plusIcon'] === 'false') ? false : true;
           var $body = $('body');
-
           var $collapsible = element.find('li[data-menu-collapse]');
 
           var bindEvents = function () {
             $collapsible.each(function (idx, li) {
               var $li = $(li);
+
               $li
                 .on('click', '>a', function (e) {
 
@@ -546,21 +534,26 @@
                   }
 
                   e.preventDefault();
-                })
-                .find('>a').append('<b class="collapse-sign"><em class="fa fa-plus-square-o"></em></b>');
+                });
 
-              // initialization toggle
-              if ($li.find('li.active').length) {
-                $li.smartCollapseToggle();
-                $li.find('li.active').parents('li').addClass('active');
+              if (addPlusSign) {
+                $li.find('>a').append('<b class="collapse-sign"><em class="fa fa-plus-square-o"></em></b>');
               }
+
+              $timeout(function () {
+                if ($li.find('li.active').length) {
+                  // initialization toggle
+                  $li.smartCollapseToggle();
+                  $li.find('li.active').parents('li').addClass('active');
+                }
+              });
             });
           };
           bindEvents();
 
 
           // click on route link
-          element.on('click', 'a[data-ui-sref]', function () {
+          element.on('click', 'a[data-ui-sref]', function (e) {
             // collapse all siblings to element parents and remove active markers
             $(this)
               .parents('li').addClass('active')
@@ -588,13 +581,13 @@
 
 /**
  * MenuItem
- * @namespace ngBraveNavigation
+ * @namespace brave.navigation
  */
 (function () {
   'use strict';
 
   angular
-    .module('ngBraveNavigation')
+    .module('brave.navigation')
     .factory('MenuItem', MenuItem);
 
   MenuItem.$inject = [];
@@ -620,45 +613,11 @@
 }());
 
 (function () {
-  'use strict';
-
-  /**
-   * @ngdoc overview
-   * @name app [ngBraveNavigation]
-   * @description Config provider for ngBraveNavigation
-   */
-  angular
-    .module('ngBraveNavigation')
-    .provider('BraveNavigationConfig', function () {
-
-      this.apiUrl = '/api';
-
-      this.$get = function () {
-        var apiUrl = this.apiUrl;
-
-        return {
-          getApiUrl: function () {
-            return apiUrl;
-          }
-        };
-      };
-
-      this.setApiUrl = function (apiUrl) {
-        this.apiUrl = apiUrl;
-      };
-
-    });
-
-})();
-
-
-
-(function () {
 
   'use strict';
 
   angular
-    .module('ngBraveNavigation')
+    .module('brave.navigation')
     .factory('BraveNavigationServiceMock', ['$q', 'MenuItem', function ($q, MenuItem) {
 
       var defaultNav = {
@@ -710,25 +669,25 @@
   'use strict';
 
   angular
-    .module('ngBraveNavigation')
+    .module('brave.navigation')
     .factory('BraveNavigationService', BraveNavigationService);
 
-  BraveNavigationService.$inject = ['$http', '$q', 'BraveNavigationConfig', 'NavigationTransformer'];
+  BraveNavigationService.$inject = ['$http', '$q', 'BraveNavigation', 'NavigationTransformer'];
 
   /**
    *
    * @param {object} $http - Http object
    * @param {object} $q - Query object
-   * @param {object} braveNavigationConfig - app config object provider
+   * @param {object} braveNavigation - app config object provider
    * @param {object} navigationTransformer - doc list transformer object
-   * @returns {{get: ngBraveNavigation.get}} - Service Factory
+   * @returns {{get: brave.navigation.get}} - Service Factory
    * @constructor
    */
-  function BraveNavigationService($http, $q, braveNavigationConfig, navigationTransformer) {
+  function BraveNavigationService($http, $q, braveNavigation, navigationTransformer) {
 
     var cache = {};
 
-    var apiUrl = braveNavigationConfig.getApiUrl();
+    var apiUrl = braveNavigation.getApiUrl();
 
     /**
      * @name Docs
@@ -745,7 +704,7 @@
      * @desc Get single doc by type and slug params
      * @param {string} symbol Document symbol
      * @returns {Promise} - Promise an object
-     * @memberOf ngBraveNavigation
+     * @memberOf brave.navigation
      */
     function get(symbol) {
 
@@ -774,15 +733,49 @@
   }
 })();
 
+(function () {
+  'use strict';
+
+  /**
+   * @ngdoc overview
+   * @name brave.navigation [brave.navigation]
+   * @description Config provider for brave.navigation
+   */
+  angular
+    .module('brave.navigation')
+    .provider('BraveNavigation', function () {
+
+      this.apiUrl = '/api';
+
+      this.$get = function () {
+        var apiUrl = this.apiUrl;
+
+        return {
+          getApiUrl: function () {
+            return apiUrl;
+          }
+        };
+      };
+
+      this.setApiUrl = function (apiUrl) {
+        this.apiUrl = apiUrl;
+      };
+
+    });
+
+})();
+
+
+
 /**
  * NavigationTransformer
- * @namespace ngBraveNavigation
+ * @namespace brave.navigation
  */
 (function () {
   'use strict';
 
   angular
-    .module('ngBraveNavigation')
+    .module('brave.navigation')
     .factory('NavigationTransformer', NavigationTransformer);
 
   NavigationTransformer.$inject = ['MenuItem'];

@@ -7,6 +7,7 @@
       return {
         restrict: 'A',
         link: function (scope, element, attrs) {
+          var addPlusSign = (attrs['plusIcon'] === 'false') ? false : true;
           var $body = $('body');
           var $collapsible = element.find('li[data-menu-collapse]');
 
@@ -29,9 +30,11 @@
                   }
 
                   e.preventDefault();
-                })
-                .find('>a').append('<b class="collapse-sign"><em class="fa fa-plus-square-o"></em></b>');
+                });
 
+              if (addPlusSign) {
+                $li.find('>a').append('<b class="collapse-sign"><em class="fa fa-plus-square-o"></em></b>');
+              }
 
               $timeout(function () {
                 if ($li.find('li.active').length) {
