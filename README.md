@@ -12,7 +12,7 @@ Development
 -----------
 To run the code in your development environment:
 
-1. Run `git clone --recursive git@bitbucket.org:sizeof/angular-brave-navigation.git angular-brave-navigation`
+1. Run `git clone --recursive git@bravelab.com:bravelab/angular-brave-navigation.git angular-brave-navigation`
 2. Run `npm install`
 3. Run `gulp` for watch changes in code
 
